@@ -35,6 +35,20 @@ from shortzy import Shortzy
 # Logging configuration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+snt_msg = await msg.copy(chat_id=message.from_user.id, caption=caption, parse_mode=ParseMode.HTML, reply_markup=reply_markup, protect_content=PROTECT_CONTENT)
+
+# Inform user about auto-delete
+await message.reply("⚠️ Important: All Messages will be deleted after 30 minutes. Please save or forward these messages to your personal saved messages to avoid losing them!")
+
+# Schedule deletion
+async def delete_after_delay(msg):
+    await asyncio.sleep(AUTO_DELETE_TIME)
+    try:
+        await msg.delete()
+    except:
+        pass  # Ignore if the message is already deleted
+
+asyncio.create_task(delete_after_delay(snt_msg))
 
 
 @Bot.on_message(filters.command('start') & filters.private & subscribed)
